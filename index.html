@@ -1,0 +1,30 @@
+<html>
+<script type="text/javascript">
+
+var connection = new WebSocket("ws://localhost:8080/msg");
+
+connection.onopen = function() {
+	
+	console.log("WS connection");
+};
+connection.onmessage = function(e) {
+	alert(e.data)
+	console.log(e.data);
+};
+
+function register() {
+	connection.send("register");
+}
+
+function unsubscribe() {
+	connection.send("unsubscribe");
+
+}
+
+</script>
+
+<button onclick="register()">Register</button>
+</br>
+<button onclick="unsubscribe()">Unsubscribe</button>
+
+</html>
