@@ -77,18 +77,8 @@ public class RBMQfooService {
 				public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException 
 				{
 					String message = new String(body, "UTF-8");
-					
-					//Message needs to be passed to Baratine
-					
-					//ResultPipeOut msg = ;
-					//_pipes.publish(msg);
-					
-					_pipes.publish((x,e) -> { 
-						_pipeOut = x;
-					});
-					
-					
-					//self.send(message, Result.ignore());
+
+					self.onReceiveRabbit(message, Result.ignore());
 					
 					chn.basicAck(envelope.getDeliveryTag(), false);
 				}
@@ -100,6 +90,8 @@ public class RBMQfooService {
 		
 		_pipes.publish((x,e) -> { 
 			System.out.println("PIPE initialized: " + x + "    exception: " + e );
+			
+			_pipeOut = x;
 			r.ok(null);
 		});
 		
@@ -112,6 +104,24 @@ public class RBMQfooService {
 		Receive(r);
 		//_pipeOut.next("Msg to browser");
 		r.ok(null);
+	}
+	
+	@Get("/testRabbit")
+  public void testRabbit(Result<String> r)
+	   throws IOException
+	{
+    System.out.println("PIPE testRabbit called: ");
+    
+    chn.basicPublish("exchange0", "routingkey0", null, "hello world".getBytes());
+    
+    r.ok(null);
+  }
+	
+	public void onReceiveRabbit(String msg, Result<Void> result)
+	{
+	  _pipeOut.next(msg);
+	  
+	  result.ok(null);
 	}
 	
 
